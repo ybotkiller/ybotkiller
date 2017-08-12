@@ -9,10 +9,11 @@ import subprocess
 class CommentBucket(object):
     def __init__(self, video_id):
         self.video_id = video_id
-        self.comments = {}
+        self.comments = dict()
         self.fieldnames = ["id", "author", "time", "timestamp", "text",
             "likes", "hasReplies", "numReplies"]
 
+    # temporary solution
     def _better_json(self):
         better_lines = []
 
@@ -25,15 +26,21 @@ class CommentBucket(object):
                         l0 = re.search("^.*{}:".format(l1), line).group(0)
                         l0 = re.sub(l1 + ":", "", l0)
                         l1 = "\"{}\"".format(l1)
-                        l2 = re.search(": .*,$", line).group(0)[2:]
+                        l2 = re.search(": .*$", line).group(0)[2:]
                         l3 = re.search("[\s},]+$", line).group(0)
-                        l2 = re.sub(l3, "", l2)
+                        l2 = re.sub(l3, "", l2 + "\n")
                         l2 = re.sub("(^'|'$)", "", l2)
                         l2 = re.sub("\"", "\\\"", l2)
                         l2 = ": \"{}\"".format(l2)
-                        better_lines.append(l0 + l1 + l2 + l3)
+                        if "numReplies:" in line:
+                            better_lines.append(l0 + l1 + l2)
+                        else:
+                            better_lines.append(l0 + l1 + l2 + l3)
+                    else:
+                        better_lines.append(" },\n")
                 except Exception as ex:
                     pass
+            better_lines[-1] = better_lines[-1][:-2] + " ]"
 
         with open("fetched.json", "w") as fetched:
             for el in better_lines:
@@ -47,14 +54,13 @@ class CommentBucket(object):
             self.comments = json.load(fetched)
         os.remove("fetched.json")
 
-        diff = set(self.comments) - set(self.fieldnames)
-        for el in diff:
-            del self.comments[el]
-
-        for data in self.comments:
-            for el in data.iteritems():
-                data[el[0]] = re.sub(u"[^a-zA-Zа-яА-Я\s\d,.:?!()<>\"'-_;^*]+",
-                    "", unicode(el[1], "utf8"))
+        for comment in self.comments:
+            diff = set(comment.keys()) - set(self.fieldnames)
+            for el in diff:
+                del comment[el]
+            for el in comment.iteritems():
+                comment[el[0]] = re.sub(u"[^a-zA-Zа-яА-Я\s\d,.:?!()<>\"'-_;^*]+",
+                    "", el[1])
 
     def get_json(self):
         with open("{}.json".format(self.video_id), "w") as json_file:
@@ -63,7 +69,7 @@ class CommentBucket(object):
 
     def get_csv(self):
         with open("{}.csv".format(self.video_id), "w") as csv_file:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer = csv.DictWriter(csv_file, fieldnames=self.fieldnames)
 
             writer.writeheader()
             for el in self.comments:
