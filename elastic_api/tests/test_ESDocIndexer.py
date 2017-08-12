@@ -27,6 +27,7 @@ class TestESDocIndexer(TestCase):
             'timestamp': 1502537659000,
             'source_type': "twitter",
             'source': "twitter.com/tweets/12345",
+            'likes': -1000,
             'custom_field': 123,
             'custom_field2': "text here"
         })
@@ -39,9 +40,21 @@ class TestESDocIndexer(TestCase):
             'timestamp': 1502527659000,
             'source_type': "twitter",
             'source': "twitter.com/tweets/12346",
+            'likes': 1000,
             'custom_field': 1881,
             'custom_field2': "text here"
         })
+
+    def test_delete_by_query(self):
+
+        self.elastic.es.delete_by_query(
+            self.elastic.index_name,
+            {
+                "query": {
+                    ""
+                }
+            }
+        )
 
     def test_drop_index(self):
         self.elastic.delete_index()

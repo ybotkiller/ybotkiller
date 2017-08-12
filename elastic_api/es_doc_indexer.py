@@ -39,7 +39,8 @@ class ESDocIndexer:
                         'reply_to': {'type': 'keyword'},
                         'timestamp': {"type": "date"},
                         'source_type': {'type': 'keyword'},
-                        'source': {'type': 'keyword'}
+                        'source': {'type': 'keyword'},
+                        'likes': {'type': 'integer'}
                     }
                 }
             }
