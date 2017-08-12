@@ -1,0 +1,31 @@
+version: '2'
+services:
+  elastic4navalny:
+    image: elasticsearch:5.4.0
+    container_name: elastic4navalny
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 262144
+        hard: 262144
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./data/elastic:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    network_mode: "host"
+  kibana4navanly:
+    image: kibana
+    environment:
+      - ELASTICSEARCH_URL=http://localhost:9200
+    ports:
+      - 5601:5601
+    network_mode: "host"
