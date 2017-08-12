@@ -15,6 +15,11 @@ class TestESDocIndexer(TestCase):
             ESDocIndexer.CONFIG_ES_ADDRESS: "192.168.1.144:9200"
         })
 
+    def create_index(self):
+        index_exists = self.elastic.check_index_exists()
+        if not index_exists:
+            self.elastic.create_index()
+
     def test_insert_document(self):
         index_exists = self.elastic.check_index_exists()
         if not index_exists:
@@ -53,7 +58,7 @@ class TestESDocIndexer(TestCase):
             body={
                 "query": {
                     "match": {
-                        "comment": "Putin"
+                        "source_type": "twitter"
                     }
                 }
             }
