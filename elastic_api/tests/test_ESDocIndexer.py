@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from elastic_api.es_doc_indexer import ESDocIndexer
-
+import pprint
 
 class TestESDocIndexer(TestCase):
     """
@@ -11,7 +11,7 @@ class TestESDocIndexer(TestCase):
 
     def setUp(self):
         self.elastic = ESDocIndexer({
-            ESDocIndexer.CONFIG_ES_ADDRESS: "172.17.0.1:9200"
+            ESDocIndexer.CONFIG_ES_ADDRESS: "192.168.1.144:9200"
         })
 
     def test_insert_document(self):
@@ -46,15 +46,53 @@ class TestESDocIndexer(TestCase):
         })
 
     def test_delete_by_query(self):
-
         self.elastic.es.delete_by_query(
-            self.elastic.index_name,
-            {
+            index=self.elastic.index_name,
+            doc_type=self.elastic.mapping_name,
+            body={
                 "query": {
-                    ""
+                    "match": {
+                        "comment": "Putin"
+                    }
                 }
             }
         )
+
+    def test_search_fields(self):
+        putin_search = self.elastic.search_by_fields({
+            "comment": "Путин"
+        })
+
+        likes_search = self.elastic.search_query({
+            "query": {
+                "range": {
+                    "likes": {
+                        "lte": 0
+                    }
+                }
+            }
+        })
+
+        bool_search = self.elastic.search_query({
+            "query": {
+                "bool": {
+                    "must": {
+                        "match": {
+                            "source_type": "twitter"
+                        }
+                    },
+                    "should":{
+                        "match": {
+                            "comment": "Путин"
+                        }
+                    }
+                }
+            }
+        })
+
+        pprint.pprint(putin_search)
+        pprint.pprint(likes_search)
+        pprint.pprint(bool_search)
 
     def test_drop_index(self):
         self.elastic.delete_index()

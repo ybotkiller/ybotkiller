@@ -50,6 +50,31 @@ class ESDocIndexer:
             body=index_body
         )
 
+    def search_query(self, query):
+        return self.es.search(
+            index=self.index_name,
+            doc_type=self.mapping_name,
+            body=query
+        )
+
+    def search_by_fields(self, fields):
+        """
+        Searches by value of fields
+
+        :param fields: Example
+        {
+            "comment": "Putin is a thief",
+            "source_type": "twitter"
+        }
+        :return:
+        """
+        query = {
+            "query": {
+                "match": fields
+            }
+        }
+        return self.search_query(query)
+
     def insert_document(self, record):
         return self.es.index(index=self.index_name, doc_type=self.mapping_name, body=record)
 
