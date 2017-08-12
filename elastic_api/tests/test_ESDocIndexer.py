@@ -9,14 +9,17 @@ class TestESDocIndexer(TestCase):
     WARN: This test can DAMAGE data
     """
 
+    def setUp(self):
+        self.elastic = ESDocIndexer({
+            ESDocIndexer.CONFIG_ES_ADDRESS: "172.17.0.1:9200"
+        })
+
     def test_insert_document(self):
-        elastic = ESDocIndexer()
-
-        index_exists = elastic.check_index_exists()
+        index_exists = self.elastic.check_index_exists()
         if not index_exists:
-            elastic.create_index()
+            self.elastic.create_index()
 
-        elastic.insert_document({
+        self.elastic.insert_document({
             'internal_user_id': "1723681",
             'user_name': "Kremle60t",
             'comment': "Я ненавижу всё новое и люблю Путина!",
@@ -28,7 +31,7 @@ class TestESDocIndexer(TestCase):
             'custom_field2': "text here"
         })
 
-        elastic.insert_document({
+        self.elastic.insert_document({
             'internal_user_id': "12312",
             'user_name': "MrGoodMan",
             'comment': "Navalny is cool, Putin is a thief",
@@ -41,5 +44,4 @@ class TestESDocIndexer(TestCase):
         })
 
     def test_drop_index(self):
-        elastic = ESDocIndexer()
-        elastic.delete_index()
+        self.elastic.delete_index()
