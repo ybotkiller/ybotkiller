@@ -61,7 +61,7 @@ class ESDocIndexer:
     def get_hits(cls, result):
         return result['hits']['hits']
 
-    def search_by_fields(self, fields):
+    def search_by_fields(self, fields, offset=0, limit=100):
         """
         Searches by value of fields
 
@@ -73,6 +73,8 @@ class ESDocIndexer:
         :return:
         """
         query = {
+            "from": offset,
+            "size": limit,
             "query": {
                 "match": fields
             }

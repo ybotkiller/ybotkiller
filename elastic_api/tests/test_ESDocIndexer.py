@@ -58,7 +58,7 @@ class TestESDocIndexer(TestCase):
             body={
                 "query": {
                     "match": {
-                        "source_type": "twitter"
+                        "confirmed": 1
                     }
                 }
             }
@@ -96,12 +96,35 @@ class TestESDocIndexer(TestCase):
             }
         })
 
-        print("---")
-        pprint.pprint(self.elastic.get_hits(putin_search))
-        print("---")
-        pprint.pprint(self.elastic.get_hits(likes_search))
-        print("---")
-        pprint.pprint(self.elastic.get_hits(bool_search))
+        bool_offset_search = self.elastic.search_query({
+            "query": {
+                "bool": {
+                    "must": {
+                        "match": {
+                            "source_type": "twitter"
+                        }
+                    },
+                    "should": {
+                        "match": {
+                            "comment": "Путин"
+                        }
+                    }
+                }
+            },
+            "from": 1000,
+            "size": 30
+        })
+
+        bool_offset_search_hits = self.elastic.get_hits(bool_offset_search)
+
+        self.assertEqual(len(bool_offset_search_hits), 30)
+
+        # print("---")
+        #pprint.pprint(self.elastic.get_hits(putin_search))
+        # print("---")
+        # pprint.pprint(self.elastic.get_hits(likes_search))
+        # print("---")
+        # pprint.pprint(self.elastic.get_hits(bool_search))
 
     def update_test(self):
 
