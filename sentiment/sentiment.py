@@ -7,9 +7,9 @@ class SentimentAnalyser:
 
     def get_sentiment(self, text):
 
-        text = Text(text)
+        text = Text(text, hint_language_code='ru')
         sentiment = 0
         for word in text.words:
             sentiment += word.polarity
 
-        return sentiment
+        return int(sentiment)

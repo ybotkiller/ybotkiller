@@ -128,3 +128,35 @@ class ESDocIndexer:
         helpers.bulk(self.es, actions, timeout="1000s")
 
         return self.es.count(index=self.index_name)
+
+    def get_count(self):
+        return self.es.count(
+            index=self.index_name,
+            doc_type=self.mapping_name
+        )['count']
+
+    def full_base_updater(self, callback, batch_size=100, query=None):
+
+        if query is None:
+            query = {}
+        total = self.get_count()
+        batch_count = total // batch_size + 1
+
+        print("batch_count: ", batch_count)
+
+        for batch_id in range(batch_count):
+            print("Processing: ", batch_id)
+
+            hits = self.get_hits(self.search_query({
+                "from": 0,
+                "size": batch_size,
+                **query
+            }))
+
+            for idx, fields in self.process_batch(hits, callback):
+                self.update_record(idx, fields)
+
+    @classmethod
+    def process_batch(cls, batch, callback):
+        for record in batch:
+            yield record["_id"], callback(record["_source"])

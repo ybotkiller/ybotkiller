@@ -140,3 +140,6 @@ class TestESDocIndexer(TestCase):
 
     def test_drop_index(self):
         self.elastic.delete_index()
+
+    def test_count(self):
+        print(self.elastic.get_count())
