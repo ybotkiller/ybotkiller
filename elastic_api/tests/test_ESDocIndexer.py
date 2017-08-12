@@ -120,7 +120,7 @@ class TestESDocIndexer(TestCase):
         self.assertEqual(len(bool_offset_search_hits), 30)
 
         # print("---")
-        #pprint.pprint(self.elastic.get_hits(putin_search))
+        # pprint.pprint(self.elastic.get_hits(putin_search))
         # print("---")
         # pprint.pprint(self.elastic.get_hits(likes_search))
         # print("---")
@@ -143,3 +143,15 @@ class TestESDocIndexer(TestCase):
 
     def test_count(self):
         print(self.elastic.get_count())
+
+    def test_scroll(self):
+
+        res = self.elastic.es.search(
+            index=self.elastic.index_name,
+            doc_type=self.elastic.mapping_name,
+            scroll='2m',
+            size=100,
+            body={}
+        )
+
+        pprint.pprint(res)

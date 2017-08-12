@@ -17,4 +17,5 @@ API: `elastic_api/es_doc_indexer.py`
 ```bash
 polyglot download sentiment2.ru
 polyglot download embeddings2.ru
+polyglot download ner2.ru
 ```

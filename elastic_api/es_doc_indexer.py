@@ -57,6 +57,13 @@ class ESDocIndexer:
             body=query
         )
 
+    def search_scroll(self, query, scroll_id=None):
+        return self.es.scroll(
+            body=query,
+            scroll_id=scroll_id,
+            params={"scroll": "1m"}
+        )
+
     @classmethod
     def get_hits(cls, result):
         return result['hits']['hits']
@@ -101,7 +108,7 @@ class ESDocIndexer:
         }
         :return:
         """
-        self.es.update(
+        return self.es.update(
             index=self.index_name,
             doc_type=self.mapping_name,
             id=record_id,
@@ -139,20 +146,32 @@ class ESDocIndexer:
 
         if query is None:
             query = {}
-        total = self.get_count()
-        batch_count = total // batch_size + 1
 
-        print("batch_count: ", batch_count)
+        page = self.es.search(
+            index=self.index_name,
+            doc_type=self.mapping_name,
+            scroll='2m',
+            size=batch_size,
+            body=query
+        )
 
-        for batch_id in range(batch_count):
-            print("Processing: ", batch_id)
+        sid = page['_scroll_id']
+        scroll_size = page['hits']['total']
 
-            hits = self.get_hits(self.search_query({
-                "from": 0,
-                "size": batch_size,
-                **query
-            }))
+        hits = page['hits']['hits']
 
+        print("Processing: ", sid, " len: ", scroll_size)
+        for idx, fields in self.process_batch(hits, callback):
+            self.update_record(idx, fields)
+
+        i = 0
+        while scroll_size > 0:
+            i += 1
+            page = self.es.scroll(scroll_id=sid, scroll='2m')
+            sid = page['_scroll_id']
+            scroll_size = len(page['hits']['hits'])
+            hits = page['hits']['hits']
+            print("Processing: ", i, " len: ", scroll_size)
             for idx, fields in self.process_batch(hits, callback):
                 self.update_record(idx, fields)
 

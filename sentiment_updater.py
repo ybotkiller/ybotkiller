@@ -1,11 +1,15 @@
 from elastic_api.es_doc_indexer import ESDocIndexer
+from sentiment.dict_sentiment import DictSentiment
 from sentiment.sentiment import SentimentAnalyser
 
 analyser = SentimentAnalyser()
+obscene = DictSentiment()
 
 
 def sentiment_updater(record):
-    res = analyser.get_sentiment(record['comment'])
+    # res = analyser.get_sentiment(record['comment']) // 2
+    res = obscene.get_sentiment(record['comment'])
+
     category = "neutral"
     if res < 0:
         category = "evil"
