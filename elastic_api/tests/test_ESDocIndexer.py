@@ -3,6 +3,7 @@ from unittest import TestCase
 from elastic_api.es_doc_indexer import ESDocIndexer
 import pprint
 
+
 class TestESDocIndexer(TestCase):
     """
     WARN: This test requires running ES on localhost
@@ -60,7 +61,7 @@ class TestESDocIndexer(TestCase):
 
     def test_search_fields(self):
         putin_search = self.elastic.search_by_fields({
-            "comment": "Путин"
+            "comment": "Putin"
         })
 
         likes_search = self.elastic.search_query({
@@ -81,7 +82,7 @@ class TestESDocIndexer(TestCase):
                             "source_type": "twitter"
                         }
                     },
-                    "should":{
+                    "should": {
                         "match": {
                             "comment": "Путин"
                         }
@@ -90,9 +91,24 @@ class TestESDocIndexer(TestCase):
             }
         })
 
-        pprint.pprint(putin_search)
-        pprint.pprint(likes_search)
-        pprint.pprint(bool_search)
+        print("---")
+        pprint.pprint(self.elastic.get_hits(putin_search))
+        print("---")
+        pprint.pprint(self.elastic.get_hits(likes_search))
+        print("---")
+        pprint.pprint(self.elastic.get_hits(bool_search))
+
+    def update_test(self):
+
+        putin_search = self.elastic.search_by_fields({
+            "comment": "Putin"
+        })
+
+        record_id = self.elastic.get_hits(putin_search)[0]["_id"]
+
+        self.elastic.update_record(record_id, {
+            "sentiment": 100
+        })
 
     def test_drop_index(self):
         self.elastic.delete_index()

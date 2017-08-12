@@ -4,6 +4,7 @@ services:
     image: elasticsearch
     container_name: elastic4navalny
     environment:
+      - http.host=0.0.0.0
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"

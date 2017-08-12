@@ -57,6 +57,10 @@ class ESDocIndexer:
             body=query
         )
 
+    @classmethod
+    def get_hits(cls, result):
+        return result['hits']['hits']
+
     def search_by_fields(self, fields):
         """
         Searches by value of fields
@@ -83,6 +87,26 @@ class ESDocIndexer:
 
     def delete_index(self):
         return self.es.indices.delete(index=self.index_name)
+
+    def update_record(self, record_id, data):
+        """
+        Updates record in elastic with new data
+
+        :param record_id: Internal elastic id. Example: `AV3Wl3IholiUnc4TtcYA`
+        :param data:
+        {
+            "some_new_estimation": 42
+        }
+        :return:
+        """
+        self.es.update(
+            index=self.index_name,
+            doc_type=self.mapping_name,
+            id=record_id,
+            body={
+                "doc": data
+            }
+        )
 
     def bulk_upload(self, docs):
         """
