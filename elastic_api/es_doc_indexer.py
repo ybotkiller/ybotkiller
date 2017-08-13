@@ -142,7 +142,20 @@ class ESDocIndexer:
             doc_type=self.mapping_name
         )['count']
 
+    def updater(self, idx, fields):
+        self.update_record(idx, fields)
+
     def full_base_updater(self, callback, batch_size=100, query=None):
+        def foo(idx, fields):
+            self.updater(idx, callback(fields))
+        self.scroll_full_base(foo, batch_size, query)
+
+    @classmethod
+    def process_batch(cls, batch, callback):
+        for record in batch:
+            yield callback(record["_id"], record["_source"])
+
+    def scroll_full_base(self, callback, batch_size=100, query=None):
 
         if query is None:
             query = {}
@@ -161,8 +174,8 @@ class ESDocIndexer:
         hits = page['hits']['hits']
 
         print("Processing: ", sid, " len: ", scroll_size)
-        for idx, fields in self.process_batch(hits, callback):
-            self.update_record(idx, fields)
+        for _ in self.process_batch(hits, callback):
+            pass
 
         i = 0
         while scroll_size > 0:
@@ -172,10 +185,5 @@ class ESDocIndexer:
             scroll_size = len(page['hits']['hits'])
             hits = page['hits']['hits']
             print("Processing: ", i, " len: ", scroll_size)
-            for idx, fields in self.process_batch(hits, callback):
-                self.update_record(idx, fields)
-
-    @classmethod
-    def process_batch(cls, batch, callback):
-        for record in batch:
-            yield record["_id"], callback(record["_source"])
+            for _ in self.process_batch(hits, callback):
+                pass
