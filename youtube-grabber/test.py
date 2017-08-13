@@ -54,6 +54,8 @@ def get_authenticated_service(args):
   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_READ_WRITE_SSL_SCOPE,
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
+  #import pdb
+  #pdb.set_trace()
   storage = Storage("%s-oauth2.json" % sys.argv[0])
   credentials = storage.get()
 
@@ -172,8 +174,8 @@ if __name__ == "__main__":
 
   if not args.videoid:
     exit("Please specify videoid using the --videoid= parameter.")
-  if not args.text:
-    exit("Please specify text using the --text= parameter.")
+  #if not args.text:
+  #  exit("Please specify text using the --text= parameter.")
 
   youtube = get_authenticated_service(args)
   # All the available methods are used in sequence just for the sake of an example.

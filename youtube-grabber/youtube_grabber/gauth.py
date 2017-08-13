@@ -6,7 +6,7 @@ from apiclient.discovery import build_from_document
 from apiclient.errors import HttpError
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from oauth2client.tools import run_flow
 
 
 YOUTUBE_READ_WRITE_SSL_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
@@ -21,15 +21,17 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """
 
 class Auth(object):
-    def __int__(self, client_secrets_file="client_secrets.json",
-                youtube_discoverydocument="youtube-v3-discoverydocument.json"):
+    def __init__(self, client_secrets_file, discoverydocument):
         self.client_secrets_file = client_secrets_file
-        self.youtube_discoverydocument = youtube_discoverydocument
+        self.discoverydocument = discoverydocument
 
-    def get_authenticated_service(slef, args):
-        flow = flow_from_clientsecrets(self.client_secrets_file, scope=YOUTUBE_READ_WRITE_SSL_SCOPE,
+    def get_authenticated_service(self, args):
+        flow = flow_from_clientsecrets(self.client_secrets_file,
+            scope=YOUTUBE_READ_WRITE_SSL_SCOPE,
             message=MISSING_CLIENT_SECRETS_MESSAGE)
 
+        #import pdb
+        #pdb.set_trace()
         storage = Storage("%s-oauth2.json" % sys.argv[0])
         credentials = storage.get()
 
@@ -38,6 +40,6 @@ class Auth(object):
 
         # Trusted testers can download this discovery document from the developers page
         # and it should be in the same directory with the code.
-        with open(self.youtube_discoverydocument, "r") as f:
+        with open(self.discoverydocument, "r") as f:
             doc = f.read()
             return build_from_document(doc, http=credentials.authorize(httplib2.Http()))
