@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>detect cremlebots</h1>
+
+<form method="POST" action="">
+    <textarea type="text" name="comment" cols="50" rows="5">
+    </textarea><br />
+    <input type="submit" value="post">
+</form>
+
+{% if comment %}
+    <p>{{ comment }}</p>
+    <p>bot probability: {{ score }}</p>
+{% endif %}
+
+</body>
+</html>
