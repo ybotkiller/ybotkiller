@@ -1,7 +1,7 @@
 from comment_bucket import CommentBucket
 import csv
 import json
-from user_info import UserInfo
+from user import User
 import re
 
 
@@ -10,12 +10,16 @@ class Aggregator(object):
         self.service = service
         self.video_id = video_id
         self.data = []
+        self.fieldnames = ["id", "author", "time", "timestamp", "text",
+            "likes", "hasReplies", "numReplies", "authorLink",
+            "subscriberCount", "viewCount", "hiddenSubscriberCount",
+            "commentCount", "videoCount"]
 
     def aggregate(self):
         cb = CommentBucket(self.video_id)
         cb.fetch_all_comments()
         for comment in cb.comments:
-            ui = UserInfo(self.service, comment["author"],
+            ui = User(self.service, comment["author"],
                 re.sub("^.*\/", "", comment["authorLink"]))
             self.data.append(dict(comment.items() +
                 ui.get_basic_user_info().items()))
@@ -28,7 +32,7 @@ class Aggregator(object):
     def get_csv(self):
         with open("{}.csv".format(self.video_id), "w") as csv_file:
             writer = csv.DictWriter(csv_file,
-                fieldnames=self.data[0].keys() + ["numReplies"])
+                fieldnames=self.fieldnames)
 
             writer.writeheader()
             for el in self.data:
